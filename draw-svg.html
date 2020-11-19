@@ -1,0 +1,184 @@
+<!--
+***********************************
+Author: Steven Stackle
+Week 10: Portfolio Assignment - Showcase XML Project
+ICT-4540, Autumn 2020, Faculty: Dr. Greg O'Toole, B.Sc., M.A., Ph.D.
+Last Revision: November 15, 2020
+
+Description: This web page built with HTML, CSS, and JavaScript 
+demonstrates the construction of Scalable Vector Graphics (SVG) shapes.
+The user enters parameters into a form, the script processes the form and
+converts the data into JSON. The script then reads the JSON and uses the data
+to append an SVG object (a shape) to the page using the page HTML DOM.
+The script also displays the shape JSON in a div near the bottom of the page.
+
+The form logic and styling is based on a tutorial by Jason Lengstorf
+on the Learn with Jason website,
+https://www.learnwithjason.dev/blog/get-form-values-as-json/.
+************************************
+-->
+
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Draw SVG</title>
+    <meta name="description" content="Draw SVG">
+    <meta name="author" content="Steve Stackle">
+
+    <link rel="stylesheet" href="css/styles.css?v=1.0">
+
+</head>
+
+<body>
+    <h1 class="center">Creating SVG with HTML and JavaScript</h1>
+    <p class="center small">This project demonstrates creating Scalable Vector Graphics (SVGs) with JavaScript on a web
+        page from form input.<br />
+        Fill out the form fields and click the Draw Shape button to see the results.<br />
+        <span class="red">Note:</span> Not all fields are required for each shape. Please see the requirements notes by each field.<br />
+        At the bottom of the page is a display of the JSON data used to draw the shape.
+    </p>
+    <div id="canvas">
+        <p>Shape Drawing Canvas</p>
+    </div>
+
+    <section class="content">
+        <h4 class="content__lede center">Enter shape data to draw a shape to the canvas.</h4>
+        <form class="content__form shape-form">
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="shape-name">Choose a Shape:</label>
+                <select id="shape-name" name="shape-name" class="shape-form__input">
+                    <option value="rect"><span class="red">Rectangle</span></option>
+                    <option value="circle"><span class="cyan">Circle</span></option>
+                    <option value="ellipse"><span class="emerald">Ellipse</span></option>
+                    <option value="line"><span class="lavender">Line</span></option>
+                </select>
+            </div>
+
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="x">x Coordinate</label>
+                <input class="shape-form__input shape-form__input--text" id="x" name="x" type="text" />
+                <h6 class="small">Required for: <span class="red">rectangles</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="y">y Coordinate</label>
+                <input class="shape-form__input shape-form__input--text" id="y" name="y" type="text" />
+                <h6 class="small">Required for: <span class="red">rectangles</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="cx">x Center</label>
+                <input class="shape-form__input shape-form__input--text" id="cx" name="cx" type="text" />
+                <h6 class="small">Required for: <span class="cyan">circles</span>, <span class="emerald">ellipses</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="cy">y Center</label>
+                <input class="shape-form__input shape-form__input--text" id="cy" name="cy" type="text" />
+                <h6 class="small">Required for: <span class="cyan">circles</span>, <span class="emerald">ellipses</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="x1">x1 Line Coordinate</label>
+                <input class="shape-form__input shape-form__input--text" id="x1" name="x1" type="text" />
+                <h6 class="small">Required for: <span class="lavender">lines</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="y1">y1 Line Coordinate</label>
+                <input class="shape-form__input shape-form__input--text" id="y1" name="y1" type="text" />
+                <h6 class="small">Required for: <span class="lavender">lines</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="x2">x2 Line Coordinate</label>
+                <input class="shape-form__input shape-form__input--text" id="x2" name="x2" type="text" />
+                <h6 class="small">Required for: <span class="lavender">lines</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="y2">y2 Line Coordinate</label>
+                <input class="shape-form__input shape-form__input--text" id="y2" name="y2" type="text" />
+                <h6 class="small">Required for: <span class="lavender">lines</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="width">Width</label>
+                <input class="shape-form__input shape-form__input--text" id="width" name="width" type="text" />
+                <h6 class="small">Required for: <span class="red">rectangles</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="height">Height</label>
+                <input class="shape-form__input shape-form__input--text" id="height" name="height" type="text" />
+                <h6 class="small">Required for: <span class="red">rectangles</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="r">Radius</label>
+                <input class="shape-form__input shape-form__input--text" id="r" name="r" type="text" />
+                <h6 class="small">Required for: <span class="cyan">circles</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="stroke">Stroke Color</label>
+                <input class="shape-form__input shape-form__input--text" id="stroke" name="stroke" type="text" />
+                <h6 class="small">Optional for all</h6>
+                <h6 class="small">Can be a valid HTML color name<br />
+                    or a hex color code #NNNNNN</h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="fill">Fill Color</label>
+                <input class="shape-form__input shape-form__input--text" id="fill" name="fill" type="text" />
+                <h6 class="small">Optional for all</h6>
+                <h6 class="small">Can be a valid HTML color name<br />
+                    or a hex color code #NNNNNN</h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="stroke-width">Stroke Width</label>
+                <input class="shape-form__input shape-form__input--text" id="stroke-width" name="stroke-width"
+                    type="text" />
+                <h6 class="small">Optional for all</h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="stroke-opacity">Stroke Opacity</label>
+                <input class="shape-form__input shape-form__input--text" id="stroke-opacity" name="stroke-opacity"
+                    type="text" />
+                <h6 class="small">Optional for all</h6>
+                <h6 class="small">Must be a number between 0-1</h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="fill-opacity">Fill Opacity</label>
+                <input class="shape-form__input shape-form__input--text" id="fill-opacity" name="fill-opacity"
+                    type="text" />
+                <h6 class="small">Optional for all</h6>
+                <h6 class="small">Must be a number between 0-1</h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="rx">x Corner Radius</label>
+                <input class="shape-form__input shape-form__input--text" id="rx" name="rx" type="text" />
+                <h6 class="small">Required for: <span class="emerald">ellipses</span></h6>
+                <h6 class="small">Optional for: <span class="red">rectangles</span></h6>
+            </div>
+            <div class="shape-form__input-group">
+                <label class="shape-form__label" for="ry">y Corner Radius</label>
+                <input class="shape-form__input shape-form__input--text" id="ry" name="ry" type="text" />
+                <h6 class="small">Required for: <span class="emerald">ellipses</span></h6>
+                <h6 class="small">Optional for: <span class="red">rectangles</span></h6>
+            </div>
+            <div>
+                <input name="secret" type="hidden" value="1b3a9374-1a8e-434e-90ab-21aa7b9b80e7" />
+                <button class="shape-form__button" type="submit">Draw Shape</button>
+            </div>
+        </form>
+    </section>
+    <div class="results">
+        <h2 class="results__heading">SVG JSON Shape Data</h2>
+        <pre class="results__display-wrapper"><code class="results__display"></code></pre>
+    </div>
+    <footer>
+        <p class="small center">Week 10: Portfolio Assignment - Showcase XML Project for<br/>
+        Master of Science<br/>
+        Information and Communications Technology Program<br/>
+        Steven Stackle<br/>
+        University of Denver University College<br/>
+        November 15, 2020<br/>
+        Faculty: Dr. Greg O'Toole, B.Sc., M.A., Ph.D.</p>
+    </footer>
+    <script src="js/scripts.js"></script>
+</body>
+
+</html>
